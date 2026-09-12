@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name = 'RichTextViewTreeSitterBinary'
-  s.version = '0.25.10.1'
+  s.version = '0.25.10.2'
   s.summary = 'Static Tree-sitter XCFrameworks for RichTextView'
   s.description = <<-DESC
     Pinned static XCFramework distributions of Tree-sitter 0.25.10,
@@ -11,7 +11,7 @@ Pod::Spec.new do |s|
   s.author = { 'FeliksLv01' => 'felikslv@163.com' }
   s.source = {
     :http => "https://github.com/FeliksLv01/RichTextViewTreeSitter/releases/download/tree-sitter-#{s.version}/RichTextViewTreeSitter.xcframeworks.zip",
-    :sha256 => 'e57f40e373aea962103071b11b884c2e4265fee4c404cbc9496fff8b20d659dd'
+    :sha256 => 'bbec17df19390bb160c9ca688262ee4f5637a6fe30cab466b226ee7e13a5407e'
   }
   s.ios.deployment_target = '15.0'
   s.swift_versions = ['5.9', '6.0']
