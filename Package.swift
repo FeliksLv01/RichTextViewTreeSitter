@@ -9,7 +9,7 @@ let package = Package(
         .library(name: "RichTextViewTreeSitter", targets: ["RichTextViewTreeSitter"])
     ],
     dependencies: [
-        .package(path: "../RichTextView"),
+        .package(url: "https://github.com/FeliksLv01/RichTextView.git", branch: "main"),
         .package(path: "Vendor/tree-sitter"),
         .package(path: "Vendor/swift-tree-sitter"),
         .package(path: "Vendor/tree-sitter-swift")

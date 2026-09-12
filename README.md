@@ -41,3 +41,15 @@ The source workspace currently registers the Swift grammar. Additional grammar
 packs and the release XCFramework are generated from the pinned upstream
 language manifest. All upstream inputs are Git submodules; HighlighterSwift and
 highlight.js are not runtime or build dependencies.
+
+## Installation
+
+Add the package from GitHub. The `main` branch tracks RichTextView's `main`
+branch while the packages are under active development:
+
+```swift
+.package(
+    url: "https://github.com/FeliksLv01/RichTextViewTreeSitter.git",
+    branch: "main"
+)
+```
