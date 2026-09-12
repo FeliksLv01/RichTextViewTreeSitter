@@ -43,8 +43,6 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          git tag "${{ steps.guard.outputs.tag }}"
-          git push origin "${{ steps.guard.outputs.tag }}"
           cp Vendor/swift-tree-sitter/LICENSE .build/release/SwiftTreeSitter-LICENSE
           cp Vendor/tree-sitter/LICENSE .build/release/TreeSitter-LICENSE
           cp Vendor/tree-sitter-swift/LICENSE .build/release/TreeSitterSwift-LICENSE
@@ -52,6 +50,7 @@ jobs:
             .build/release/*.zip \
             .build/release/*-LICENSE \
             THIRD_PARTY_NOTICES.md \
+            --target "$(git rev-parse HEAD)" \
             --generate-notes
       - name: Publish CocoaPods when configured
         if: env.COCOAPODS_TRUNK_TOKEN != ''
