@@ -23,11 +23,11 @@ done
 
 git -C "$SOURCE_DIR/tree-sitter" apply "$ROOT_DIR/Patches/tree-sitter-static-framework.patch"
 git -C "$SOURCE_DIR/tree-sitter-swift" apply "$ROOT_DIR/Patches/tree-sitter-swift-static-framework.patch"
-ruby -pi -e 'sub(%q{.library(name: "SwiftTreeSitter", targets: ["SwiftTreeSitter"])}, %q{.library(name: "SwiftTreeSitter", type: .dynamic, targets: ["SwiftTreeSitter"])})' \
+ruby -pi -e 'sub(%q{.library(name: "SwiftTreeSitter", targets: ["SwiftTreeSitter"])}, %q{.library(name: "SwiftTreeSitter", type: .static, targets: ["SwiftTreeSitter"])})' \
   "$SOURCE_DIR/swift-tree-sitter/Package.swift"
 ruby -pi -e 'sub(%q{.package(url: "https://github.com/tree-sitter/tree-sitter", .upToNextMinor(from: "0.25.0"))}, %q{.package(path: "../tree-sitter")})' \
   "$SOURCE_DIR/swift-tree-sitter/Package.swift"
-grep -Fq '.library(name: "SwiftTreeSitter", type: .dynamic' "$SOURCE_DIR/swift-tree-sitter/Package.swift"
+grep -Fq '.library(name: "SwiftTreeSitter", type: .static' "$SOURCE_DIR/swift-tree-sitter/Package.swift"
 grep -Fq '.package(path: "../tree-sitter")' "$SOURCE_DIR/swift-tree-sitter/Package.swift"
 
 archive() {
@@ -55,8 +55,22 @@ archive() {
       "$@" 2>&1 | xcbeautify
   )
 
+  local framework="$archive_path/Products/usr/local/lib/$scheme.framework"
+  if [[ ! -f "$framework/$scheme" ]]; then
+    local object_file
+    object_file="$(find "$archive_path/Products/Users" -type f -name "$scheme.o" | head -n 1)"
+    if [[ -z "$object_file" ]]; then
+      echo "Missing static object for $scheme in $archive_path" >&2
+      exit 1
+    fi
+    mkdir -p "$framework"
+    ditto "$object_file" "$framework/$scheme"
+  fi
+  cp "$ROOT_DIR/Support/StaticFrameworkInfo.plist" "$framework/Info.plist"
+  plutil -insert CFBundleExecutable -string "$scheme" "$framework/Info.plist"
+  plutil -insert CFBundleIdentifier -string "io.github.felikslv01.$scheme" "$framework/Info.plist"
+
   if [[ "$scheme" == "SwiftTreeSitter" ]]; then
-    local framework="$archive_path/Products/usr/local/lib/$scheme.framework"
     local module_dir
     module_dir="$(find "$derived_data" -type d -path "*Release-$sdk/$scheme.swiftmodule" | head -n 1)"
     if [[ -z "$module_dir" || ! -d "$framework" ]]; then
@@ -66,7 +80,6 @@ archive() {
     mkdir -p "$framework/Modules"
     ditto "$module_dir" "$framework/Modules/$scheme.swiftmodule"
   else
-    local framework="$archive_path/Products/usr/local/lib/$scheme.framework"
     mkdir -p "$framework/Headers" "$framework/Modules"
     if [[ "$scheme" == "TreeSitter" ]]; then
       ditto "$source/lib/include" "$framework/Headers"

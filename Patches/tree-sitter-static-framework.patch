@@ -6,7 +6,7 @@ index 8fc428f..f704c37 100644
          // Products define the executables and libraries a package produces, and make them visible to other packages.
          .library(
              name: "TreeSitter",
-+            type: .dynamic,
++            type: .static,
              targets: ["TreeSitter"]),
      ],
      targets: [

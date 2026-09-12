@@ -6,7 +6,7 @@ diff --git a/Package.swift b/Package.swift
      platforms: [.macOS(.v10_13), .iOS(.v11)],
      products: [
 -        .library(name: "TreeSitterSwift", targets: ["TreeSitterSwift"]),
-+        .library(name: "TreeSitterSwift", type: .dynamic, targets: ["TreeSitterSwift"]),
++        .library(name: "TreeSitterSwift", type: .static, targets: ["TreeSitterSwift"]),
      ],
      dependencies: [],
      targets: [

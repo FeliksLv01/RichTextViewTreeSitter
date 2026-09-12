@@ -1,0 +1,42 @@
+name: TreeSitterRuntimeConsumer
+
+options:
+  deploymentTarget:
+    iOS: "15.0"
+
+packages:
+  TreeSitterBinaryConsumer:
+    path: ../SwiftPMConsumer
+
+targets:
+  TreeSitterRuntimeConsumer:
+    type: application
+    platform: iOS
+    sources:
+      - Sources
+    info:
+      path: Info.plist
+      properties:
+        UILaunchScreen: {}
+        UIApplicationSceneManifest:
+          UIApplicationSupportsMultipleScenes: false
+          UISceneConfigurations:
+            UIWindowSceneSessionRoleApplication:
+              - UISceneConfigurationName: Default Configuration
+                UISceneDelegateClassName: $(PRODUCT_MODULE_NAME).SceneDelegate
+    dependencies:
+      - package: TreeSitterBinaryConsumer
+        product: TreeSitterBinaryConsumer
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: io.github.felikslv01.TreeSitterRuntimeConsumer
+        SWIFT_VERSION: 5.9
+        TARGETED_DEVICE_FAMILY: "1"
+
+schemes:
+  TreeSitterRuntimeConsumer:
+    build:
+      targets:
+        TreeSitterRuntimeConsumer: all
+    run:
+      config: Debug
