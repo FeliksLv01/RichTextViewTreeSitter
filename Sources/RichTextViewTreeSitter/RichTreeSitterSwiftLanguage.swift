@@ -1,7 +1,7 @@
 import SwiftTreeSitter
 import TreeSitterSwift
 
-public extension RichTreeSitterLanguage {
+extension RichTreeSitterLanguage {
     static var swift: Self {
         get throws {
             let configuration = try LanguageConfiguration(
@@ -14,12 +14,5 @@ public extension RichTreeSitterLanguage {
                 configuration: configuration
             )
         }
-    }
-}
-
-public extension RichTreeSitterLanguageRegistry {
-    static var standard: RichTreeSitterLanguageRegistry {
-        let languages = [try? RichTreeSitterLanguage.swift].compactMap { $0 }
-        return RichTreeSitterLanguageRegistry(languages: languages)
     }
 }

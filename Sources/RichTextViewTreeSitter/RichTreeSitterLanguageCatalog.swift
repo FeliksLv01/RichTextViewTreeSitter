@@ -1,12 +1,12 @@
 import Foundation
 
-public enum RichTreeSitterLanguageSupport: Equatable, Sendable {
+enum RichTreeSitterLanguageSupport: Equatable, Sendable {
     case treeSitter(canonicalLanguage: String)
     case plainTextCompatible
     case unknown
 }
 
-public enum RichTreeSitterLanguageCatalog {
+enum RichTreeSitterLanguageCatalog {
     public static let highlightJSIdentifiers: Set<String> = Set(highlightJSIdentifierSource.split(separator: "\n").map(String.init))
 
     public static func canonicalIdentifier(for identifier: String) -> String {

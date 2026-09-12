@@ -1,26 +1,25 @@
 # RichTextViewTreeSitter
 
 Optional Tree-sitter syntax highlighting for RichTextView on iOS 15 and later.
-The renderer stays independent: this package supplies an injectable code-block
-presentation resolver.
+The renderer stays independent: this package implements RichTextView's global,
+single-slot code-block highlighting plugin API.
 
 ```swift
-let resolver = RichTreeSitterPresentationResolver()
-let context = RichContentRenderContext(
-    constrainedWidth: width,
-    configuration: .standard,
-    resolver: resolver
+RichCodeBlockHighlighting.register(
+    TreeSitterCodeBlockHighlightingPlugin(theme: .github)
 )
 ```
 
-For direct use:
+The plugin is retained globally and reused across renders. An explicit
+`RichContentPresentationResolving` code-block presentation still takes
+precedence. Unsupported languages return `nil`, allowing RichTextView to render
+its built-in plain-text code block.
 
 ```swift
-let highlighter = RichTreeSitterHighlighter()
-let result = highlighter.highlight(code: source, language: "swift")
+RichCodeBlockHighlighting.unregister()
 ```
 
-`RichTreeSitterTheme` controls the code font, line height, foreground,
+`TreeSitterCodeHighlightTheme` controls the code font, line height, foreground,
 background, block insets, corner radius, and per-capture styles. Four presets
 are built in: `.github`, `.xcode`, `.monokai`, and `.dracula`; `.default` is an
 alias of the adaptive GitHub preset. Capture lookup is hierarchical, so a
@@ -28,8 +27,9 @@ alias of the adaptive GitHub preset. Capture lookup is hierarchical, so a
 configured.
 
 ```swift
-resolver.theme = .monokai
-resolver.theme = .preset(.dracula)
+let plugin = TreeSitterCodeBlockHighlightingPlugin(theme: .monokai)
+RichCodeBlockHighlighting.register(plugin)
+plugin.setTheme(.preset(.dracula))
 ```
 
 The compatibility catalog accepts the 192 language identifiers exposed by the

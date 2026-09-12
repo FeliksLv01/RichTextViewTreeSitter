@@ -1,6 +1,6 @@
 import UIKit
 
-public struct RichTreeSitterTokenStyle {
+public struct TreeSitterCodeTokenStyle {
     public let foregroundColor: UIColor?
     public let backgroundColor: UIColor?
     public let font: UIFont?
@@ -16,14 +16,14 @@ public struct RichTreeSitterTokenStyle {
     }
 }
 
-public struct RichTreeSitterTheme {
+public struct TreeSitterCodeHighlightTheme {
     public let font: UIFont
     public let lineHeight: CGFloat
     public let textColor: UIColor
     public let backgroundColor: UIColor
     public let codeBlockInsets: UIEdgeInsets
     public let codeBlockCornerRadius: CGFloat
-    public let tokenStyles: [String: RichTreeSitterTokenStyle]
+    public let tokenStyles: [String: TreeSitterCodeTokenStyle]
 
     public init(
         font: UIFont,
@@ -32,7 +32,7 @@ public struct RichTreeSitterTheme {
         backgroundColor: UIColor,
         codeBlockInsets: UIEdgeInsets = UIEdgeInsets(top: 12, left: 16, bottom: 12, right: 16),
         codeBlockCornerRadius: CGFloat = 8,
-        tokenStyles: [String: RichTreeSitterTokenStyle]
+        tokenStyles: [String: TreeSitterCodeTokenStyle]
     ) {
         self.font = font
         self.lineHeight = lineHeight
@@ -43,7 +43,7 @@ public struct RichTreeSitterTheme {
         self.tokenStyles = tokenStyles
     }
 
-    public func style(for capture: String) -> RichTreeSitterTokenStyle? {
+    func style(for capture: String) -> TreeSitterCodeTokenStyle? {
         var components = capture.split(separator: ".")
         while !components.isEmpty {
             if let style = tokenStyles[components.joined(separator: ".")] {
@@ -138,7 +138,7 @@ public struct RichTreeSitterTheme {
         )
     }
 
-    public static func preset(_ preset: RichTreeSitterThemePreset) -> Self {
+    public static func preset(_ preset: TreeSitterCodeHighlightThemePreset) -> Self {
         switch preset {
         case .github: .github
         case .xcode: .xcode
@@ -167,34 +167,34 @@ public struct RichTreeSitterTheme {
             textColor: text,
             backgroundColor: background,
             tokenStyles: [
-                "attribute": RichTreeSitterTokenStyle(foregroundColor: accent),
-                "boolean": RichTreeSitterTokenStyle(foregroundColor: number),
-                "comment": RichTreeSitterTokenStyle(foregroundColor: comment),
-                "constant": RichTreeSitterTokenStyle(foregroundColor: number),
-                "constructor": RichTreeSitterTokenStyle(foregroundColor: type),
-                "embedded": RichTreeSitterTokenStyle(foregroundColor: text),
-                "function": RichTreeSitterTokenStyle(foregroundColor: function),
-                "function.builtin": RichTreeSitterTokenStyle(foregroundColor: function),
-                "function.call": RichTreeSitterTokenStyle(foregroundColor: function),
-                "keyword": RichTreeSitterTokenStyle(foregroundColor: keyword, font: bold),
-                "label": RichTreeSitterTokenStyle(foregroundColor: accent),
-                "number": RichTreeSitterTokenStyle(foregroundColor: number),
-                "operator": RichTreeSitterTokenStyle(foregroundColor: keyword),
-                "property": RichTreeSitterTokenStyle(foregroundColor: property),
-                "punctuation": RichTreeSitterTokenStyle(foregroundColor: text),
-                "string": RichTreeSitterTokenStyle(foregroundColor: string),
-                "string.escape": RichTreeSitterTokenStyle(foregroundColor: accent),
-                "string.special": RichTreeSitterTokenStyle(foregroundColor: string),
-                "tag": RichTreeSitterTokenStyle(foregroundColor: keyword),
-                "type": RichTreeSitterTokenStyle(foregroundColor: type),
-                "variable.builtin": RichTreeSitterTokenStyle(foregroundColor: accent),
-                "variable.parameter": RichTreeSitterTokenStyle(foregroundColor: text)
+                "attribute": TreeSitterCodeTokenStyle(foregroundColor: accent),
+                "boolean": TreeSitterCodeTokenStyle(foregroundColor: number),
+                "comment": TreeSitterCodeTokenStyle(foregroundColor: comment),
+                "constant": TreeSitterCodeTokenStyle(foregroundColor: number),
+                "constructor": TreeSitterCodeTokenStyle(foregroundColor: type),
+                "embedded": TreeSitterCodeTokenStyle(foregroundColor: text),
+                "function": TreeSitterCodeTokenStyle(foregroundColor: function),
+                "function.builtin": TreeSitterCodeTokenStyle(foregroundColor: function),
+                "function.call": TreeSitterCodeTokenStyle(foregroundColor: function),
+                "keyword": TreeSitterCodeTokenStyle(foregroundColor: keyword, font: bold),
+                "label": TreeSitterCodeTokenStyle(foregroundColor: accent),
+                "number": TreeSitterCodeTokenStyle(foregroundColor: number),
+                "operator": TreeSitterCodeTokenStyle(foregroundColor: keyword),
+                "property": TreeSitterCodeTokenStyle(foregroundColor: property),
+                "punctuation": TreeSitterCodeTokenStyle(foregroundColor: text),
+                "string": TreeSitterCodeTokenStyle(foregroundColor: string),
+                "string.escape": TreeSitterCodeTokenStyle(foregroundColor: accent),
+                "string.special": TreeSitterCodeTokenStyle(foregroundColor: string),
+                "tag": TreeSitterCodeTokenStyle(foregroundColor: keyword),
+                "type": TreeSitterCodeTokenStyle(foregroundColor: type),
+                "variable.builtin": TreeSitterCodeTokenStyle(foregroundColor: accent),
+                "variable.parameter": TreeSitterCodeTokenStyle(foregroundColor: text)
             ]
         )
     }
 
-    private static func style(_ light: UInt32, _ dark: UInt32, font: UIFont? = nil) -> RichTreeSitterTokenStyle {
-        RichTreeSitterTokenStyle(foregroundColor: dynamic(light: light, dark: dark), font: font)
+    private static func style(_ light: UInt32, _ dark: UInt32, font: UIFont? = nil) -> TreeSitterCodeTokenStyle {
+        TreeSitterCodeTokenStyle(foregroundColor: dynamic(light: light, dark: dark), font: font)
     }
 
     private static func dynamic(light: UInt32, dark: UInt32) -> UIColor {
@@ -213,7 +213,7 @@ public struct RichTreeSitterTheme {
     }
 }
 
-public enum RichTreeSitterThemePreset: String, CaseIterable, Sendable {
+public enum TreeSitterCodeHighlightThemePreset: String, CaseIterable, Sendable {
     case github
     case xcode
     case monokai

@@ -2,27 +2,27 @@ import Foundation
 import SwiftTreeSitter
 import UIKit
 
-public enum RichTreeSitterBackend: Equatable, Sendable {
+enum RichTreeSitterBackend: Equatable, Sendable {
     case treeSitter(canonicalLanguage: String)
     case plainText
 }
 
-public struct RichTreeSitterHighlightResult {
-    public let attributedString: NSAttributedString
-    public let backend: RichTreeSitterBackend
+struct RichTreeSitterHighlightResult {
+    let attributedString: NSAttributedString
+    let backend: RichTreeSitterBackend
 
-    public init(attributedString: NSAttributedString, backend: RichTreeSitterBackend) {
+    init(attributedString: NSAttributedString, backend: RichTreeSitterBackend) {
         self.attributedString = NSAttributedString(attributedString: attributedString)
         self.backend = backend
     }
 }
 
-public struct RichTreeSitterLanguage: @unchecked Sendable {
-    public let canonicalIdentifier: String
-    public let aliases: Set<String>
-    public let configuration: LanguageConfiguration
+struct RichTreeSitterLanguage: @unchecked Sendable {
+    let canonicalIdentifier: String
+    let aliases: Set<String>
+    let configuration: LanguageConfiguration
 
-    public init(
+    init(
         canonicalIdentifier: String,
         aliases: Set<String> = [],
         configuration: LanguageConfiguration
@@ -37,15 +37,20 @@ public struct RichTreeSitterLanguage: @unchecked Sendable {
     }
 }
 
-public final class RichTreeSitterLanguageRegistry: @unchecked Sendable {
+final class RichTreeSitterLanguageRegistry: @unchecked Sendable {
+    static let standard: RichTreeSitterLanguageRegistry = {
+        let languages = [try? RichTreeSitterLanguage.swift].compactMap { $0 }
+        return RichTreeSitterLanguageRegistry(languages: languages)
+    }()
+
     private let queue = DispatchQueue(label: "io.github.felikslv01.rich-text-view.tree-sitter.registry", attributes: .concurrent)
     private var languages: [String: RichTreeSitterLanguage] = [:]
 
-    public init(languages: [RichTreeSitterLanguage] = []) {
+    init(languages: [RichTreeSitterLanguage] = []) {
         languages.forEach(register)
     }
 
-    public func register(_ language: RichTreeSitterLanguage) {
+    func register(_ language: RichTreeSitterLanguage) {
         queue.sync(flags: .barrier) {
             languages[language.canonicalIdentifier] = language
             for alias in language.aliases {
@@ -54,24 +59,25 @@ public final class RichTreeSitterLanguageRegistry: @unchecked Sendable {
         }
     }
 
-    public func language(for identifier: String) -> RichTreeSitterLanguage? {
+    func language(for identifier: String) -> RichTreeSitterLanguage? {
         let normalized = RichTreeSitterLanguage.normalize(identifier)
         return queue.sync {
             languages[normalized] ?? languages[RichTreeSitterLanguageCatalog.aliases[normalized] ?? normalized]
         }
     }
 
-    public var registeredIdentifiers: [String] {
+    var registeredIdentifiers: [String] {
         queue.sync { languages.keys.sorted() }
     }
 }
 
-public final class RichTreeSitterHighlighter: @unchecked Sendable {
+final class RichTreeSitterHighlighter: @unchecked Sendable {
     private final class State {
         let parser: Parser
         let query: Query
         var previousSource = ""
         var previousTree: MutableTree?
+        var lastAccess: UInt64 = 0
 
         init(language: RichTreeSitterLanguage) throws {
             guard let query = language.configuration.queries[.highlights] else {
@@ -86,26 +92,33 @@ public final class RichTreeSitterHighlighter: @unchecked Sendable {
 
     private let queue = DispatchQueue(label: "io.github.felikslv01.rich-text-view.tree-sitter.highlighter")
     private let registry: RichTreeSitterLanguageRegistry
+    private let maximumCachedCodeBlocks: Int
     private var states: [String: State] = [:]
+    private var accessCounter: UInt64 = 0
 
-    public init(registry: RichTreeSitterLanguageRegistry = .standard) {
+    init(
+        registry: RichTreeSitterLanguageRegistry = .standard,
+        maximumCachedCodeBlocks: Int = 64
+    ) {
         self.registry = registry
+        self.maximumCachedCodeBlocks = max(1, maximumCachedCodeBlocks)
     }
 
-    public func backend(for languageIdentifier: String) -> RichTreeSitterBackend {
+    func backend(for languageIdentifier: String) -> RichTreeSitterBackend {
         guard let language = registry.language(for: languageIdentifier) else { return .plainText }
         return .treeSitter(canonicalLanguage: language.canonicalIdentifier)
     }
 
-    public func highlight(
+    func highlight(
         code: String,
         language languageIdentifier: String,
-        theme: RichTreeSitterTheme = .default
+        nodeID: String,
+        theme: TreeSitterCodeHighlightTheme = .default
     ) -> RichTreeSitterHighlightResult {
         queue.sync {
             let result = baseAttributedString(code: code, theme: theme)
             guard let language = registry.language(for: languageIdentifier),
-                  let state = state(for: language),
+                  let state = state(for: language, nodeID: nodeID),
                   let tree = updatedTree(for: code, state: state),
                   let root = tree.rootNode else {
                 return RichTreeSitterHighlightResult(attributedString: result, backend: .plainText)
@@ -126,23 +139,32 @@ public final class RichTreeSitterHighlighter: @unchecked Sendable {
         }
     }
 
-    public func reset(language languageIdentifier: String? = nil) {
+    func reset(language languageIdentifier: String? = nil) {
         queue.sync {
             guard let languageIdentifier,
                   let language = registry.language(for: languageIdentifier) else {
                 states.removeAll()
                 return
             }
-            states.removeValue(forKey: language.canonicalIdentifier)
+            let prefix = "\(language.canonicalIdentifier)\u{0}"
+            states = states.filter { !$0.key.hasPrefix(prefix) }
         }
     }
 
-    private func state(for language: RichTreeSitterLanguage) -> State? {
-        if let state = states[language.canonicalIdentifier] {
+    private func state(for language: RichTreeSitterLanguage, nodeID: String) -> State? {
+        accessCounter &+= 1
+        let key = "\(language.canonicalIdentifier)\u{0}\(nodeID)"
+        if let state = states[key] {
+            state.lastAccess = accessCounter
             return state
         }
         guard let state = try? State(language: language) else { return nil }
-        states[language.canonicalIdentifier] = state
+        state.lastAccess = accessCounter
+        states[key] = state
+        if states.count > maximumCachedCodeBlocks,
+           let leastRecentlyUsedKey = states.min(by: { $0.value.lastAccess < $1.value.lastAccess })?.key {
+            states.removeValue(forKey: leastRecentlyUsedKey)
+        }
         return state
     }
 
@@ -167,7 +189,7 @@ public final class RichTreeSitterHighlighter: @unchecked Sendable {
         return tree
     }
 
-    private func baseAttributedString(code: String, theme: RichTreeSitterTheme) -> NSMutableAttributedString {
+    private func baseAttributedString(code: String, theme: TreeSitterCodeHighlightTheme) -> NSMutableAttributedString {
         let paragraph = NSMutableParagraphStyle()
         paragraph.minimumLineHeight = theme.lineHeight
         paragraph.maximumLineHeight = theme.lineHeight
@@ -182,7 +204,7 @@ public final class RichTreeSitterHighlighter: @unchecked Sendable {
         )
     }
 
-    private func apply(style: RichTreeSitterTokenStyle, to value: NSMutableAttributedString, range: NSRange) {
+    private func apply(style: TreeSitterCodeTokenStyle, to value: NSMutableAttributedString, range: NSRange) {
         if let foregroundColor = style.foregroundColor {
             value.addAttribute(.foregroundColor, value: foregroundColor, range: range)
         }
@@ -200,6 +222,6 @@ public final class RichTreeSitterHighlighter: @unchecked Sendable {
     }
 }
 
-public enum RichTreeSitterError: Error, Equatable {
+enum RichTreeSitterError: Error, Equatable {
     case missingHighlightQuery(String)
 }
