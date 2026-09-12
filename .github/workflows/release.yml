@@ -45,12 +45,13 @@ jobs:
         run: |
           git tag "${{ steps.guard.outputs.tag }}"
           git push origin "${{ steps.guard.outputs.tag }}"
+          cp Vendor/swift-tree-sitter/LICENSE .build/release/SwiftTreeSitter-LICENSE
+          cp Vendor/tree-sitter/LICENSE .build/release/TreeSitter-LICENSE
+          cp Vendor/tree-sitter-swift/LICENSE .build/release/TreeSitterSwift-LICENSE
           gh release create "${{ steps.guard.outputs.tag }}" \
             .build/release/*.zip \
+            .build/release/*-LICENSE \
             THIRD_PARTY_NOTICES.md \
-            Vendor/swift-tree-sitter/LICENSE#SwiftTreeSitter-LICENSE \
-            Vendor/tree-sitter/LICENSE#TreeSitter-LICENSE \
-            Vendor/tree-sitter-swift/LICENSE#TreeSitterSwift-LICENSE \
             --generate-notes
       - name: Publish CocoaPods when configured
         if: env.COCOAPODS_TRUNK_TOKEN != ''
