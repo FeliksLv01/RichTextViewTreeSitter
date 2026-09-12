@@ -1,0 +1,12 @@
+[submodule "Vendor/swift-tree-sitter"]
+	path = Vendor/swift-tree-sitter
+	url = https://github.com/tree-sitter/swift-tree-sitter.git
+[submodule "Vendor/tree-sitter-language-pack"]
+	path = Vendor/tree-sitter-language-pack
+	url = https://github.com/xberg-io/tree-sitter-language-pack.git
+[submodule "Vendor/tree-sitter-swift"]
+	path = Vendor/tree-sitter-swift
+	url = https://github.com/alex-pinkus/tree-sitter-swift.git
+[submodule "Vendor/tree-sitter"]
+	path = Vendor/tree-sitter
+	url = https://github.com/tree-sitter/tree-sitter.git
