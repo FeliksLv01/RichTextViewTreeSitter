@@ -37,10 +37,10 @@ reference Highlight.js bundle. A language is reported as Tree-sitter-backed
 only when its grammar pack is registered; identifiers without a reliable
 Tree-sitter grammar degrade to plain text instead of loading JavaScriptCore.
 
-The source workspace currently registers the Swift grammar. Additional grammar
-packs and the release XCFramework are generated from the pinned upstream
-language manifest. All upstream inputs are Git submodules; HighlighterSwift and
-highlight.js are not runtime or build dependencies.
+The source workspace currently registers the Swift grammar. SwiftPM resolves
+the Tree-sitter runtime, Swift binding, and Swift grammar from pinned upstream
+releases. HighlighterSwift and highlight.js are not runtime or build
+dependencies.
 
 ## Installation
 
