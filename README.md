@@ -21,9 +21,16 @@ let result = highlighter.highlight(code: source, language: "swift")
 ```
 
 `RichTreeSitterTheme` controls the code font, line height, foreground,
-background, block insets, corner radius, and per-capture styles. Capture lookup
-is hierarchical, so a `string` style also applies to `string.special` unless a
-more specific style is configured.
+background, block insets, corner radius, and per-capture styles. Four presets
+are built in: `.github`, `.xcode`, `.monokai`, and `.dracula`; `.default` is an
+alias of the adaptive GitHub preset. Capture lookup is hierarchical, so a
+`string` style also applies to `string.special` unless a more specific style is
+configured.
+
+```swift
+resolver.theme = .monokai
+resolver.theme = .preset(.dracula)
+```
 
 The compatibility catalog accepts the 192 language identifiers exposed by the
 reference Highlight.js bundle. A language is reported as Tree-sitter-backed

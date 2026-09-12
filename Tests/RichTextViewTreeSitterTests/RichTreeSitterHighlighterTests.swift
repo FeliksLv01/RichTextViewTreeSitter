@@ -54,6 +54,24 @@ final class RichTreeSitterHighlighterTests: XCTestCase {
         XCTAssertEqual(color(in: value.attributedString, token: "let"), keywordColor)
     }
 
+    func testAllBuiltInThemesHighlightSwift() {
+        XCTAssertEqual(RichTreeSitterThemePreset.allCases.count, 4)
+        let highlighter = RichTreeSitterHighlighter()
+
+        for preset in RichTreeSitterThemePreset.allCases {
+            let theme = RichTreeSitterTheme.preset(preset)
+            let value = highlighter.highlight(
+                code: "let message = \"hello\"",
+                language: "swift",
+                theme: theme
+            )
+
+            XCTAssertEqual(value.backend, .treeSitter(canonicalLanguage: "swift"), preset.rawValue)
+            XCTAssertNotNil(theme.style(for: "keyword"), preset.rawValue)
+            XCTAssertNotNil(theme.style(for: "string"), preset.rawValue)
+        }
+    }
+
     private func color(in value: NSAttributedString, token: String) -> UIColor? {
         let range = (value.string as NSString).range(of: token)
         return value.attribute(.foregroundColor, at: range.location, effectiveRange: nil) as? UIColor

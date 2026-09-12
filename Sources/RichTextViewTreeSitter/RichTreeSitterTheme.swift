@@ -55,6 +55,10 @@ public struct RichTreeSitterTheme {
     }
 
     public static var `default`: Self {
+        .github
+    }
+
+    public static var github: Self {
         let regular = UIFont.monospacedSystemFont(ofSize: 14, weight: .regular)
         let bold = UIFont.monospacedSystemFont(ofSize: 14, weight: .semibold)
         return Self(
@@ -89,6 +93,106 @@ public struct RichTreeSitterTheme {
         )
     }
 
+    public static var xcode: Self {
+        builtIn(
+            background: dynamic(light: 0xFFFFFF, dark: 0x1F1F24),
+            text: dynamic(light: 0x000000, dark: 0xFFFFFF),
+            keyword: dynamic(light: 0x9B2393, dark: 0xFC5FA3),
+            type: dynamic(light: 0x0B4F79, dark: 0x5DD8FF),
+            string: dynamic(light: 0xC41A16, dark: 0xFC6A5D),
+            comment: dynamic(light: 0x267507, dark: 0x6C7986),
+            number: dynamic(light: 0x1C00CF, dark: 0xD0BF69),
+            function: dynamic(light: 0x326D74, dark: 0x67B7A4),
+            property: dynamic(light: 0x326D74, dark: 0x67B7A4),
+            accent: dynamic(light: 0x703DAA, dark: 0xA167E6)
+        )
+    }
+
+    public static var monokai: Self {
+        builtIn(
+            background: color(0x272822),
+            text: color(0xF8F8F2),
+            keyword: color(0xF92672),
+            type: color(0x66D9EF),
+            string: color(0xE6DB74),
+            comment: color(0x75715E),
+            number: color(0xAE81FF),
+            function: color(0xA6E22E),
+            property: color(0x66D9EF),
+            accent: color(0xFD971F)
+        )
+    }
+
+    public static var dracula: Self {
+        builtIn(
+            background: color(0x282A36),
+            text: color(0xF8F8F2),
+            keyword: color(0xFF79C6),
+            type: color(0x8BE9FD),
+            string: color(0xF1FA8C),
+            comment: color(0x6272A4),
+            number: color(0xBD93F9),
+            function: color(0x50FA7B),
+            property: color(0x8BE9FD),
+            accent: color(0xFFB86C)
+        )
+    }
+
+    public static func preset(_ preset: RichTreeSitterThemePreset) -> Self {
+        switch preset {
+        case .github: .github
+        case .xcode: .xcode
+        case .monokai: .monokai
+        case .dracula: .dracula
+        }
+    }
+
+    private static func builtIn(
+        background: UIColor,
+        text: UIColor,
+        keyword: UIColor,
+        type: UIColor,
+        string: UIColor,
+        comment: UIColor,
+        number: UIColor,
+        function: UIColor,
+        property: UIColor,
+        accent: UIColor
+    ) -> Self {
+        let regular = UIFont.monospacedSystemFont(ofSize: 14, weight: .regular)
+        let bold = UIFont.monospacedSystemFont(ofSize: 14, weight: .semibold)
+        return Self(
+            font: regular,
+            lineHeight: 22,
+            textColor: text,
+            backgroundColor: background,
+            tokenStyles: [
+                "attribute": RichTreeSitterTokenStyle(foregroundColor: accent),
+                "boolean": RichTreeSitterTokenStyle(foregroundColor: number),
+                "comment": RichTreeSitterTokenStyle(foregroundColor: comment),
+                "constant": RichTreeSitterTokenStyle(foregroundColor: number),
+                "constructor": RichTreeSitterTokenStyle(foregroundColor: type),
+                "embedded": RichTreeSitterTokenStyle(foregroundColor: text),
+                "function": RichTreeSitterTokenStyle(foregroundColor: function),
+                "function.builtin": RichTreeSitterTokenStyle(foregroundColor: function),
+                "function.call": RichTreeSitterTokenStyle(foregroundColor: function),
+                "keyword": RichTreeSitterTokenStyle(foregroundColor: keyword, font: bold),
+                "label": RichTreeSitterTokenStyle(foregroundColor: accent),
+                "number": RichTreeSitterTokenStyle(foregroundColor: number),
+                "operator": RichTreeSitterTokenStyle(foregroundColor: keyword),
+                "property": RichTreeSitterTokenStyle(foregroundColor: property),
+                "punctuation": RichTreeSitterTokenStyle(foregroundColor: text),
+                "string": RichTreeSitterTokenStyle(foregroundColor: string),
+                "string.escape": RichTreeSitterTokenStyle(foregroundColor: accent),
+                "string.special": RichTreeSitterTokenStyle(foregroundColor: string),
+                "tag": RichTreeSitterTokenStyle(foregroundColor: keyword),
+                "type": RichTreeSitterTokenStyle(foregroundColor: type),
+                "variable.builtin": RichTreeSitterTokenStyle(foregroundColor: accent),
+                "variable.parameter": RichTreeSitterTokenStyle(foregroundColor: text)
+            ]
+        )
+    }
+
     private static func style(_ light: UInt32, _ dark: UInt32, font: UIFont? = nil) -> RichTreeSitterTokenStyle {
         RichTreeSitterTokenStyle(foregroundColor: dynamic(light: light, dark: dark), font: font)
     }
@@ -107,4 +211,11 @@ public struct RichTreeSitterTheme {
             alpha: 1
         )
     }
+}
+
+public enum RichTreeSitterThemePreset: String, CaseIterable, Sendable {
+    case github
+    case xcode
+    case monokai
+    case dracula
 }
