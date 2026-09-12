@@ -10,9 +10,8 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/FeliksLv01/RichTextView.git", branch: "main"),
-        .package(path: "Vendor/tree-sitter"),
-        .package(path: "Vendor/swift-tree-sitter"),
-        .package(path: "Vendor/tree-sitter-swift")
+        .package(url: "https://github.com/tree-sitter/swift-tree-sitter.git", exact: "0.25.0"),
+        .package(url: "https://github.com/alex-pinkus/tree-sitter-swift.git", exact: "0.7.3-with-generated-files")
     ],
     targets: [
         .target(
