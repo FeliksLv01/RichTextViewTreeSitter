@@ -1,0 +1,5 @@
+framework module TreeSitter {
+  umbrella "Headers"
+  export *
+  module * { export * }
+}

@@ -2,29 +2,33 @@
 
 import PackageDescription
 
+let version = "tree-sitter-0.25.10.1"
+let releaseBaseURL = "https://github.com/FeliksLv01/RichTextViewTreeSitter/releases/download/\(version)"
+
 let package = Package(
-    name: "RichTextViewTreeSitter",
+    name: "RichTextViewTreeSitterBinary",
     platforms: [.iOS(.v15)],
     products: [
-        .library(name: "RichTextViewTreeSitter", targets: ["RichTextViewTreeSitter"])
-    ],
-    dependencies: [
-        .package(url: "https://github.com/FeliksLv01/RichTextView.git", branch: "main"),
-        .package(url: "https://github.com/tree-sitter/swift-tree-sitter.git", exact: "0.25.0"),
-        .package(url: "https://github.com/alex-pinkus/tree-sitter-swift.git", exact: "0.7.3-with-generated-files")
+        .library(
+            name: "RichTextViewTreeSitterBinary",
+            targets: ["TreeSitter", "SwiftTreeSitter", "TreeSitterSwift"]
+        )
     ],
     targets: [
-        .target(
-            name: "RichTextViewTreeSitter",
-            dependencies: [
-                .product(name: "RichTextView", package: "RichTextView"),
-                .product(name: "SwiftTreeSitter", package: "swift-tree-sitter"),
-                .product(name: "TreeSitterSwift", package: "tree-sitter-swift")
-            ]
+        .binaryTarget(
+            name: "TreeSitter",
+            url: "\(releaseBaseURL)/TreeSitter.xcframework.zip",
+            checksum: "f2ba9ddb46cf03ea12d769f7299023f73f2e93f84631217e054736bbdc8d9300"
         ),
-        .testTarget(
-            name: "RichTextViewTreeSitterTests",
-            dependencies: ["RichTextViewTreeSitter"]
+        .binaryTarget(
+            name: "SwiftTreeSitter",
+            url: "\(releaseBaseURL)/SwiftTreeSitter.xcframework.zip",
+            checksum: "89b8df51b14494290bf71de048d5a1da4a65e6736a264244d19075500383b9c6"
+        ),
+        .binaryTarget(
+            name: "TreeSitterSwift",
+            url: "\(releaseBaseURL)/TreeSitterSwift.xcframework.zip",
+            checksum: "f85c2df73fd8365a9d28063363d74630fa2495cd39afa591f5641438793c1260"
         )
     ]
 )

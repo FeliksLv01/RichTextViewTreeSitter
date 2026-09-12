@@ -1,0 +1,12 @@
+diff --git a/Package.swift b/Package.swift
+index 8fc428f..f704c37 100644
+--- a/Package.swift
++++ b/Package.swift
+@@ -8,6 +8,7 @@ let package = Package(
+         // Products define the executables and libraries a package produces, and make them visible to other packages.
+         .library(
+             name: "TreeSitter",
++            type: .dynamic,
+             targets: ["TreeSitter"]),
+     ],
+     targets: [

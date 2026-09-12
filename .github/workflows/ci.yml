@@ -1,0 +1,24 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  build-and-test:
+    runs-on: macos-26
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+      - uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
+      - run: brew install xcbeautify cocoapods
+      - run: ./Scripts/build-xcframeworks.sh
+      - run: ./Scripts/test-swiftpm.sh
+      - run: ./Scripts/test-cocoapods.sh

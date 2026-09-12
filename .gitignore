@@ -2,4 +2,8 @@
 .swiftpm/
 DerivedData/
 Package.resolved
-Vendor/
+Vendor/tree-sitter-language-pack/
+.build/xcframework/
+Artifacts/
+*.xcframework
+*.xcframework.zip

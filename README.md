@@ -1,55 +1,48 @@
-# RichTextViewTreeSitter
+# RichTextViewTreeSitterBinary
 
-Optional Tree-sitter syntax highlighting for RichTextView on iOS 15 and later.
-The renderer stays independent: this package implements RichTextView's global,
-single-slot code-block highlighting plugin API.
+Pinned static XCFramework distributions used by
+[RichTextView](https://github.com/FeliksLv01/RichTextView) for built-in code
+block syntax highlighting.
 
-```swift
-RichCodeBlockHighlighting.register(
-    TreeSitterCodeBlockHighlightingPlugin(theme: .github)
-)
+This repository contains no RichTextView public API or highlighting theme API.
+It only packages these upstream implementations:
+
+- Tree-sitter 0.25.10
+- SwiftTreeSitter 0.25.0
+- tree-sitter-swift 0.7.3-with-generated-files
+
+All three upstream projects are pinned as Git submodules. Consumers download
+release artifacts rather than cloning or compiling their source trees.
+
+## Artifacts
+
+Each release contains three static XCFrameworks with iOS device arm64 and iOS
+Simulator arm64 slices:
+
+- `TreeSitter.xcframework`
+- `SwiftTreeSitter.xcframework`
+- `TreeSitterSwift.xcframework`
+
+The package manifests temporarily declare a dynamic SwiftPM product so Xcode
+creates a framework bundle. The archive command overrides its Mach-O type with
+`MACH_O_TYPE=staticlib`; verification fails unless every resulting binary is an
+`ar` static archive.
+
+## Build and verify
+
+```sh
+git submodule update --init
+./Scripts/build-xcframeworks.sh
+./Scripts/test-swiftpm.sh
+./Scripts/test-cocoapods.sh
 ```
 
-The plugin is retained globally and reused across renders. An explicit
-`RichContentPresentationResolving` code-block presentation still takes
-precedence. Unsupported languages return `nil`, allowing RichTextView to render
-its built-in plain-text code block.
+All Xcode output is formatted with `xcbeautify`. Local and CI tests compile
+both iOS device and arm64 simulator consumers.
 
-```swift
-RichCodeBlockHighlighting.unregister()
-```
+## Release policy
 
-`TreeSitterCodeHighlightTheme` controls the code font, line height, foreground,
-background, block insets, corner radius, and per-capture styles. Four presets
-are built in: `.github`, `.xcode`, `.monokai`, and `.dracula`; `.default` is an
-alias of the adaptive GitHub preset. Capture lookup is hierarchical, so a
-`string` style also applies to `string.special` unless a more specific style is
-configured.
-
-```swift
-let plugin = TreeSitterCodeBlockHighlightingPlugin(theme: .monokai)
-RichCodeBlockHighlighting.register(plugin)
-plugin.setTheme(.preset(.dracula))
-```
-
-The compatibility catalog accepts the 192 language identifiers exposed by the
-reference Highlight.js bundle. A language is reported as Tree-sitter-backed
-only when its grammar pack is registered; identifiers without a reliable
-Tree-sitter grammar degrade to plain text instead of loading JavaScriptCore.
-
-The source workspace currently registers the Swift grammar. SwiftPM resolves
-the Tree-sitter runtime, Swift binding, and Swift grammar from pinned upstream
-releases. HighlighterSwift and highlight.js are not runtime or build
-dependencies.
-
-## Installation
-
-Add the package from GitHub. The `main` branch tracks RichTextView's `main`
-branch while the packages are under active development:
-
-```swift
-.package(
-    url: "https://github.com/FeliksLv01/RichTextViewTreeSitter.git",
-    branch: "main"
-)
-```
+Only the `Release` GitHub Actions workflow running from `main` may update
+checksums, create a `tree-sitter-*` tag, or upload release artifacts. Generated
+XCFrameworks and zip files are ignored and never committed, avoiding Git LFS
+growth.
